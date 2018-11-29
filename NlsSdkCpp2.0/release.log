@@ -1,0 +1,124 @@
+-----2018/08/06 Version:2.3.1-----
+
+1. speechXXXRequest.h  
+
+添加setPayloadParam()模版方法
+template <class T> int setPayloadParam(const char* key, T value);
+template <class T> int setPayloadParam(const char* key, std::map< const char*, T> value);
+template <class T> int setPayloadParam(const char* key, std::list< T> value);
+
+修改bool值设置方式，从char *修改为bool
+setIntermediateResult(const char*) ---> setIntermediateResult(bool)
+setPunctuationPrediction(const char*) ---> setPunctuationPrediction(bool)
+setInverseTextNormalization(const char*) ---> setInverseTextNormalization(bool)
+
+2. speechTranscriberRequest.h
+
+添加 语义参数设置接口
+setSemanticSentenceDetection(bool)
+
+3. 删除配置文件模块
+
+SpeechRecognizerRequest(SpeechRecognizerCallback* cb, const char* config) ---> SpeechRecognizerRequest(SpeechRecognizerCallback* cb);
+
+SpeechTranscriberRequest(SpeechTranscriberCallback* cb, const char* config) ---> SpeechTranscriberRequest(SpeechTranscriberCallback* cb);
+
+SpeechSynthesizerRequest(SpeechSynthesizerCallback* cb, const char* config) ---> SpeechSynthesizerRequest(SpeechSynthesizerCallback* cb);
+
+4. jsoncpp 以动态库形式集成，不在以源码形式集成
+
+5. 增加命名空间AlibabaNls，防止与用户自定义的类型和接口冲突
+
+6. 修改demo文件在Windows下utf-8编码格式编译错误问题
+
+7. SpeechRecognizerRequest.h 一句话识别添加静音检测参数接口
+   setEnableVoiceDetection(bool);
+   setMaxStartSilence(int);
+   setMaxEndSilence(int);
+
+-------------------------------
+
+-----2018/08/21 Version:2.3.2-----
+
+1: 添加dialogAssistant协议
+
+dialogAssistant头文件为nlsCppSdk/framework/feature/da/dialogAssistantRequest.h。
+
+*语音进文本出
+1)调用方式：
+createDialogAssistantRequest()--->start()--->sendAduio---->stop()--->releaseDialogAssistantRequest();
+2)回调事件:
+RecognitionStarted事件
+RecognitionResultChanged事件
+RecognitionCompleted事件
+DialogResultGenerated事件
+
+文本进文本出
+1)调用方式:
+createDialogAssistantRequest()--->qureyText()--->releaseDialogAssistantRequest();
+2)回调事件:
+DialogResultGenerated事件 
+
+2: 新增request对象基类头文件nlsCppSdk/framework/feature/(iNlsRequest.h/iNlsRequestListener.h)
+将一句话识别，实时语音，语音合成，dialogAssistant通用request/listener部分抽象成基类
+
+3:实时转写新增vad参数设置接口setMaxSentenceSilence()
+
+4:添加ios平台ipv6支持
+
+5:新增一句话识别同步接口，接口详见头文件nlsCppSdk/framework/feature/sr/speechRecognizerSyncRequest.h
+  同步demo见 demo/speechRecognizerSyncDemo.cpp
+
+6:新增实时语音识别同步接口，接口详见头文件nlsCppSdk/framework/feature/st/speechTranscriberSyncRequest.h
+  同步demo见 demo/speechTranscriberSyncDemo.cpp
+
+7:优化一句话，实时语音demo. 在demo中添加错误处理逻辑代码。
+
+8:整理发送线程TaskFailed事件，新增自定义错误码。
+10000010 内存不足
+10000011 接口调用顺序错误
+10000012 参数错误
+10000013 发送错误
+10000014 超时错误
+
+9:添加同步接口单元测试模块
+
+10:添加dialogAssistant接口单元测试模块
+
+
+-----2018/08/21 Version:2.3.3-----
+1: 对话助手，一句话识别，实时长语音，语音合成添加int setParams(const char* value)接口；
+
+
+-----2018/09/03 Version:2.3.4-----
+1: fix SDK 添加connect，recv超时处理，解决长时间不返回问题。
+2: 调整语音助手setQueryParams()接口。
+   调用样例：setQueryParams("[{\"test\":\"test_value\",\"test1\":\"test_value1\"},{\"test2\":\"test_value2\",\"test3\":\"test_value3\"}]");
+3: 调整通用Payload，Context参数设置接口。
+   调用样例：setPayloadParam("{\"test1\":\"01\", \"test2\":\"15\"}");
+             setContextParam("{\"network\":{\"ip\":\"100.101.102.103\"}, \"custom\":{\"dingding_user_id\":\"xxx\"}}");
+
+
+-----2018/09/10 Version:2.3.6-----
+1: fix connect 阻塞不返回BUG
+2: SDK在TaskFailed，complete事件时内部关闭连接，应用层再次调用send，stop不会上报TaskFailed事件
+
+-----2018/09/10 Version:2.3.7-----
+1: Demo优化，调整发送缓冲为100ms.
+2: fix SDK内部异常时，多次上报TaskFailed事件
+3: 修改日志输出，终端输出时也可设置级别
+4: 添加UDS sessionId 默认值，与Task Id相同
+
+
+-----2018/10/08 Version:2.3.8-----
+1: fix UDS接口setQueryParams设置错误
+2: stop时增加context参数
+
+
+-----2018/11/09 Version:2.3.9-----
+1: 实时语音onSentenceEnd事件添加句子开始时间接口getSentenceBeginTime()；添加置信度接口getSentenceConfidence()；
+2: start()发送403错误时，在TaskFailed事件中添加错误原因描述
+3: fix 大并发下start耗时过久BUG
+4: 添加OPUS，SPEEX支持
+
+
