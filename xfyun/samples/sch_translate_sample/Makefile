@@ -15,7 +15,7 @@ LDFLAGS := -L$(DIR_LIB)/x64
 else
 LDFLAGS := -L$(DIR_LIB)/x86 
 endif
-LDFLAGS += -lmsc -lrt -ldl -lpthread
+LDFLAGS += -lmsc -lrt -ldl -lpthread -lstdc++
 
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 
